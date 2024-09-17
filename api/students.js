@@ -1,14 +1,14 @@
 const express = require('express');
-const cors = require('cors'); // Import the cors package
+const cors = require('cors');
 
+// Create an Express application
 const app = express();
-const port = process.env.PORT || 3000;
 
-// Middleware to handle JSON data
+// Middleware to handle JSON data and enable CORS
 app.use(express.json());
 app.use(cors()); // Enable CORS for all requests
 
-// Simulated Database (JSON file as "database")
+// Simulated Database (array of student objects)
 let students = [
   {
     id: 1,
@@ -59,7 +59,7 @@ let students = [
     phone: '01187654321',
     govern: 'القاهرة',
     religion: 'مسلم',
-    gender: 'انثى',
+    gender: 'أنثى',
     parent: {
       name: 'ماجد رامي',
       employee: 'طبيب',
@@ -111,42 +111,7 @@ app.get('/students/:id', (req, res) => {
 app.post('/students', (req, res) => {
   const newStudent = {
     id: students.length + 1,
-    name: req.body.name,
-    address: req.body.address,
-    nationalId: req.body.nationalId,
-    email: req.body.email,
-    birthDate: req.body.birthDate,
-    phone: req.body.phone,
-    govern: req.body.govern,
-    religion: req.body.religion,
-    gender: req.body.gender,
-    parent: {
-      name: req.body.parent.name,
-      employee: req.body.parent.employee,
-      nationalId: req.body.parent.nationalId,
-      studentRelation: req.body.parent.studentRelation,
-      address: req.body.parent.address,
-    },
-    military: {
-      number: req.body.military.number,
-      postNumber: req.body.military.postNumber,
-      postDate: req.body.military.postDate,
-      status: req.body.military.status,
-      wantedYear: req.body.military.wantedYear,
-      lastPostYear: req.body.military.lastPostYear,
-      militaryNotes: req.body.military.militaryNotes,
-    },
-    previousEducation: {
-      education: req.body.previousEducation.education,
-      gradYear: req.body.previousEducation.gradYear,
-    },
-    recentEducation: {
-      divisionName: req.body.recentEducation.divisionName,
-      divisionId: req.body.recentEducation.divisionId,
-      status: req.body.recentEducation.status,
-      level: req.body.recentEducation.level,
-      term: req.body.recentEducation.term,
-    },
+    ...req.body,
   };
 
   students.push(newStudent);
@@ -162,12 +127,7 @@ app.put('/students/:id', (req, res) => {
     return res.status(404).json({ message: 'Student not found' });
   }
 
-  // Update student information
-  students[studentIndex] = {
-    ...students[studentIndex], // Keep the existing properties
-    ...req.body, // Overwrite with the new values
-  };
-
+  students[studentIndex] = { ...students[studentIndex], ...req.body };
   res.json(students[studentIndex]);
 });
 
@@ -181,10 +141,15 @@ app.delete('/students/:id', (req, res) => {
   }
 
   students.splice(studentIndex, 1);
-  res.status(204).send(); // No content to return, but request was successful
+  res.status(204).send(); // No content response
 });
 
-// Start the server
+// Set the port dynamically using the environment variable or fallback to 3000
+const port = process.env.PORT || 3000;
+
+// Start the server and listen on the specified port
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+module.exports = app;
