@@ -91,7 +91,11 @@ let students = [
 ];
 
 // GET route to retrieve all students
-app.get('/students', (req, res) => {
+// app.get('/students', (req, res) => {
+//   res.json(students);
+// });
+
+app.get('/api/students', (req, res) => {
   res.json(students);
 });
 
