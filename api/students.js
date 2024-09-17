@@ -124,12 +124,12 @@ app.get('/students/:id', (req, res) => {
 // });
 
 app.post('/students', (req, res) => {
-  const newId =
-    req.body.id ||
-    (students.length > 0 ? Math.max(...students.map((s) => s.id)) + 1 : 1);
+  // const newId =
+  //   req.body.id ||
+  //   (students.length > 0 ? Math.max(...students.map((s) => s.id)) + 1 : 1);
 
   const newStudent = {
-    id: newId,
+    // id: newId,
     ...req.body,
   };
 
