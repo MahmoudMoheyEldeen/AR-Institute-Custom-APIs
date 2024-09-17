@@ -90,6 +90,11 @@ let students = [
   },
 ];
 
+// Route to handle root URL
+app.get('/', (req, res) => {
+  res.send('API is running');
+});
+
 // GET route to retrieve all students
 app.get('/students', (req, res) => {
   res.json(students);
