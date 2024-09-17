@@ -113,23 +113,9 @@ app.get('/students/:id', (req, res) => {
 });
 
 // POST route to add a new student
-// app.post('/students', (req, res) => {
-//   const newStudent = {
-//     id: students.length + 1,
-//     ...req.body,
-//   };
-
-//   students.push(newStudent);
-//   res.status(201).json(newStudent);
-// });
-
 app.post('/students', (req, res) => {
-  // const newId =
-  //   req.body.id ||
-  //   (students.length > 0 ? Math.max(...students.map((s) => s.id)) + 1 : 1);
-
   const newStudent = {
-    // id: newId,
+    id: students.length + 1,
     ...req.body,
   };
 
