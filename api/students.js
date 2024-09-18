@@ -115,9 +115,12 @@ app.get('/students/:id', (req, res) => {
 // POST route to add a new student
 app.post('/students', (req, res) => {
   const newStudent = {
-    id: students.length + 1,
+    id: students.length + 1, // Ensure id is a number
     ...req.body,
   };
+
+  // Make sure the new student's id is explicitly set as a number
+  newStudent.id = Number(newStudent.id);
 
   students.push(newStudent);
   res.status(201).json(newStudent);
