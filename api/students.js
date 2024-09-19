@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -10,13 +12,10 @@ app.use(express.json());
 app.use(cors()); // Enable CORS for all requests
 
 // MongoDB connection (replace 'your_mongo_connection_string' with your actual MongoDB Atlas connection string)
-mongoose.connect(
-  'mongodb+srv://mahmoudmoheysaad:ERQLNco1xx7giuOz@forstudents.we0zs.mongodb.net/',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
