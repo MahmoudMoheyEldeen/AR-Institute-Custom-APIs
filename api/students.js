@@ -11,20 +11,14 @@ const app = express();
 app.use(express.json());
 app.use(cors()); // Enable CORS for all requests
 
-// MongoDB connection (replace 'your_mongo_connection_string' with your actual MongoDB Atlas connection string)
-mongoose.connect(
-  'mongodb+srv://mahmoudmoheysaad:ERQLNco1xx7giuOz@forstudents.we0zs.mongodb.net/',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-  console.log('Connected to MongoDB Atlas');
-});
+// MongoDB connection using environment variable for the URI
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB:', err.message);
+    process.exit(1); // Exit the process if connection fails
+  });
 
 // Define the Student Schema
 const studentSchema = new mongoose.Schema({
