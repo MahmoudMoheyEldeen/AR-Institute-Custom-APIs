@@ -2,7 +2,5 @@ require('dotenv').config();
 
 const app = require('./students');
 
-// This exports the express app so Vercel or other platforms can treat it as a serverless function
-module.exports = (req, res) => {
-  app(req, res);
-};
+// This exports the express app so platforms like Vercel can treat it as a serverless function
+module.exports = app;
