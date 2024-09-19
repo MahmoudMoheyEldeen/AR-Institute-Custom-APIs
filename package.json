@@ -1,5 +1,5 @@
 {
-  "name": "ar-institute-custom-apis",
+  "name": "studentsapis",
   "version": "1.0.0",
   "description": "Node.js API for AR Institute",
   "main": "api/index.js",
