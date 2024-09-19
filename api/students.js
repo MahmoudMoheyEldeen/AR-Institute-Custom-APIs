@@ -1,8 +1,15 @@
-'mongodb+srv://mahmoudmoheysaad:ERQLNco1xx7giuOz@forstudents.we0zs.mongodb.net/';
-
+const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 
-// Connect to MongoDB Atlas
+// Create an Express application
+const app = express();
+
+// Middleware to handle JSON data and enable CORS
+app.use(express.json());
+app.use(cors()); // Enable CORS for all requests
+
+// MongoDB connection (replace 'your_mongo_connection_string' with your actual MongoDB Atlas connection string)
 mongoose.connect(
   'mongodb+srv://mahmoudmoheysaad:ERQLNco1xx7giuOz@forstudents.we0zs.mongodb.net/',
   {
@@ -12,103 +19,56 @@ mongoose.connect(
 );
 
 const db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
   console.log('Connected to MongoDB Atlas');
 });
 
-const express = require('express');
-const cors = require('cors');
-
-// Create an Express application
-const app = express();
-
-// Middleware to handle JSON data and enable CORS
-app.use(express.json());
-app.use(cors()); // Enable CORS for all requests
-
-// Simulated Database (array of student objects)
-let students = [
-  {
-    id: 1,
-    name: 'محمد احمد',
-    address: 'شارع الهلالي',
-    nationalId: '12345678901234',
-    email: 'example@example.com',
-    birthDate: '23/01/2008',
-    phone: '01012345678',
-    govern: 'أسيوط',
-    religion: 'مسلم',
-    gender: 'ذكر',
-    parent: {
-      name: 'احمد ماجد',
-      employee: 'مهندس',
-      nationalId: '23456789012345',
-      studentRelation: 'الوالد',
-      address: 'شارع الهلالي',
-    },
-    military: {
-      number: '111/222/333',
-      postNumber: '123',
-      postDate: '23/01/2021',
-      status: 'موجل له بالمعهد',
-      wantedYear: '25',
-      lastPostYear: '2027',
-      militaryNotes: 'ملاحظات عسكرية',
-    },
-    previousEducation: {
-      education: 'دبلوم صنايع',
-      gradYear: '2017/2018',
-    },
-    recentEducation: {
-      divisionName: 'الذكاء الأصطناعي',
-      divisionId: 101,
-      status: 'مستجد',
-      level: 'الأولي',
-      term: 'أول',
-    },
+// Define the Student Schema
+const studentSchema = new mongoose.Schema({
+  id: Number,
+  name: String,
+  address: String,
+  nationalId: String,
+  email: String,
+  birthDate: String,
+  phone: String,
+  govern: String,
+  religion: String,
+  gender: String,
+  parent: {
+    name: String,
+    employee: String,
+    nationalId: String,
+    studentRelation: String,
+    address: String,
   },
-  {
-    id: 2,
-    name: 'مي علي',
-    address: 'شارع النميس',
-    nationalId: '98765432101234',
-    email: 'example2@example.com',
-    birthDate: '12/12/2008',
-    phone: '01187654321',
-    govern: 'القاهرة',
-    religion: 'مسلم',
-    gender: 'أنثى',
-    parent: {
-      name: 'ماجد رامي',
-      employee: 'طبيب',
-      nationalId: '34567890123456',
-      studentRelation: 'الوالد',
-      address: 'شارع النميس',
-    },
-    military: {
-      number: '222/333/444',
-      postNumber: '456',
-      postDate: '12/12/2021',
-      status: 'موجل له بالمعهد',
-      wantedYear: '26',
-      lastPostYear: '2026',
-      militaryNotes: 'ملاحظات عسكرية أخرى',
-    },
-    previousEducation: {
-      education: 'دبلوم تجارة',
-      gradYear: '2018/2019',
-    },
-    recentEducation: {
-      divisionName: 'تكنولوجيا الاتصالات',
-      divisionId: 102,
-      status: 'باقي للإعادة',
-      level: 'الثانية',
-      term: 'ثاني',
-    },
+  military: {
+    number: String,
+    postNumber: String,
+    postDate: String,
+    status: String,
+    wantedYear: String,
+    lastPostYear: String,
+    militaryNotes: String,
   },
-];
+  previousEducation: {
+    education: String,
+    gradYear: String,
+  },
+  recentEducation: {
+    divisionName: String,
+    divisionId: Number,
+    status: String,
+    level: String,
+    term: String,
+  },
+});
+
+// Create the Student model from the schema
+const Student = mongoose.model('Student', studentSchema);
+
+// API Routes
 
 // Route to handle root URL
 app.get('/', (req, res) => {
@@ -116,60 +76,81 @@ app.get('/', (req, res) => {
 });
 
 // GET route to retrieve all students
-app.get('/students', (req, res) => {
-  res.json(students);
+app.get('/students', async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // GET route to retrieve a specific student by ID
-app.get('/students/:id', (req, res) => {
-  const studentId = parseInt(req.params.id);
-  const student = students.find((s) => s.id === studentId);
-
-  if (!student) {
-    return res.status(404).json({ message: 'Student not found' });
+app.get('/students/:id', async (req, res) => {
+  try {
+    const student = await Student.findOne({ id: req.params.id });
+    if (!student) return res.status(404).json({ message: 'Student not found' });
+    res.json(student);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  res.json(student);
 });
 
 // POST route to add a new student
-app.post('/students', (req, res) => {
-  const newStudent = {
-    id: students.length + 1, // Ensure id is a number
-    ...req.body,
-  };
+app.post('/students', async (req, res) => {
+  const student = new Student({
+    id: req.body.id,
+    name: req.body.name,
+    address: req.body.address,
+    nationalId: req.body.nationalId,
+    email: req.body.email,
+    birthDate: req.body.birthDate,
+    phone: req.body.phone,
+    govern: req.body.govern,
+    religion: req.body.religion,
+    gender: req.body.gender,
+    parent: req.body.parent,
+    military: req.body.military,
+    previousEducation: req.body.previousEducation,
+    recentEducation: req.body.recentEducation,
+  });
 
-  // Make sure the new student's id is explicitly set as a number
-  newStudent.id = Number(newStudent.id);
-
-  students.push(newStudent);
-  res.status(201).json(newStudent);
+  try {
+    const newStudent = await student.save();
+    res.status(201).json(newStudent);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
 // PUT route to update a student's information
-app.put('/students/:id', (req, res) => {
-  const studentId = parseInt(req.params.id);
-  const studentIndex = students.findIndex((s) => s.id === studentId);
-
-  if (studentIndex === -1) {
-    return res.status(404).json({ message: 'Student not found' });
+app.put('/students/:id', async (req, res) => {
+  try {
+    const updatedStudent = await Student.findOneAndUpdate(
+      { id: req.params.id },
+      req.body,
+      { new: true }
+    );
+    if (!updatedStudent)
+      return res.status(404).json({ message: 'Student not found' });
+    res.json(updatedStudent);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-
-  students[studentIndex] = { ...students[studentIndex], ...req.body };
-  res.json(students[studentIndex]);
 });
 
 // DELETE route to remove a student by ID
-app.delete('/students/:id', (req, res) => {
-  const studentId = parseInt(req.params.id);
-  const studentIndex = students.findIndex((s) => s.id === studentId);
-
-  if (studentIndex === -1) {
-    return res.status(404).json({ message: 'Student not found' });
+app.delete('/students/:id', async (req, res) => {
+  try {
+    const deletedStudent = await Student.findOneAndDelete({
+      id: req.params.id,
+    });
+    if (!deletedStudent)
+      return res.status(404).json({ message: 'Student not found' });
+    res.status(204).send(); // No content response
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  students.splice(studentIndex, 1);
-  res.status(204).send(); // No content response
 });
 
 // Set the port dynamically using the environment variable or fallback to 3000
